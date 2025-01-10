@@ -1,0 +1,26 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruitables - Vegetable Website Shop</title>
+    <link rel="stylesheet" href="{% static 'main/css/invoice.css' %}">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+</head>
+{% block content %}
+<div class="row justify-content-center pt-lg-4 text-center" style="margin-bottom: 200px; margin-top: 200px;">
+    <div class="col-lg-5 col-md-7 col-sm-9">
+        <h1 class="display-404 py-lg-3">Payment Completed!</h1>
+        <h2 class="h3 mb-4">Your order has been successfully placed. Order ID #{{order.oid}}</h2>
+        <p class="fs-md mb-4"><a href="{% url 'contact' %}">Contact us</a> if you have any questions</p>
+    </div>
+</div>
+{% endblock %}
+</html>
+
+<!------ Include the above in your HEAD tag ---------->

@@ -1,0 +1,26 @@
+{% include 'login/login_imports.html' %}
+
+{% block content %}
+    <div class="form">
+
+        <ul class="tab-group">
+            <li class="tab active"><a href="{% url 'sign_up' %}">Sign Up</a></li>
+            <li class="tab"><a href="{% url 'login_home' %}">Log In</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="signup">   
+                <h1>Sign Up for Free</h1>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.username }} <br>
+                    {{ form.password }} <br>
+                    {{ form.email }}
+                
+                <button class="button button-block" type="submit">Sign Up</button>
+                
+                </form>
+            </div>
+            </div>
+    </div>
+{% endblock %}

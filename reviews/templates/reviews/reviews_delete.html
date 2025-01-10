@@ -1,0 +1,19 @@
+{% extends 'main/layout.html' %}
+
+{% block title %}
+Delete The Review
+{% endblock %}
+
+{% block content %}
+    <div class="feautures">
+        <h1>Delete The Review</h1>
+        <form method="post">
+            {% csrf_token %}
+            
+            <span>{{ error }}</span>
+            <button class="btn btn-success" type="submit">Delete Review</button>
+        </form>
+    </div>
+    
+
+{% endblock %}

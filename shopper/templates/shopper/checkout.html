@@ -1,0 +1,193 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+
+{% block content %}
+        <!-- Single Page Header start -->
+        <div class="container-fluid page-header py-5">
+            <h1 class="text-center text-white display-6">Checkout</h1>
+        </div>
+        <!-- Single Page Header End -->
+
+        <style>
+            .success {
+                color: rgb(255, 254, 254);
+                font-size: 20px;
+                background-color: #8ec024;
+                text-align: center;
+                position: absolute;
+            }
+            .error {
+                color: white;
+                font-size: 20px;
+                background-color: red;
+                text-align: center;
+                position: absolute;
+            }
+        </style>
+
+{% if messages %}
+    {% for message in messages %}
+        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+
+        <!-- Checkout Page Start -->
+        <div class="container-fluid py-5 text-center">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <div class="co l-md-12 col-lg-6 col-xl-5">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Products</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order_items %}
+                                        <tr>
+                                                <th scope="row">
+                                                    <div class="d-flex align-items-center mt-2">
+                                                        <img src="{{item.image}}" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                                                    </div>
+                                                </th>
+                                                <td class="py-5"><a href="{% url 'product-view' item.pid %}">{{item.title}}</a></td>
+                                                <td class="py-5">${{item.price}}</td>
+                                                <td class="py-5" style="text-align: center;">{{item.qty}}</td>
+                                                <td class="py-5">${{item.total}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <th scope="row">
+                                        </th>
+                                        <td class="py-5">
+                                            <p class="mb-0 text-dark text-uppercase py-3">DISCOUNT</p>
+                                        </td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5">
+                                            <div class="py-3 border-bottom border-top">
+                                                <p class="mb-0 text-dark">${{order.saved}}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                        </th>
+                                        <td class="py-5">
+                                            <p class="mb-0 text-dark text-uppercase py-3">TOTAL</p>
+                                        </td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5">
+                                            <div class="py-3 border-bottom border-top">
+                                                <p class="mb-0 text-dark">${{order.price}}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mt-5" style="text-align: right;">
+                                <form method="POST" id="coupon">
+                                    {% csrf_token %}
+                                    <input type="text" name="code" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code" required>
+                                    {{ form.as_p }}
+                                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" form="coupon" type="submit">Apply Coupon</button>
+                                </form>
+                            </div>
+                        </div>
+                        <button class="btn w-100" id="checkout-button" style="background-color: blueviolet; color: whitesmoke; height: 60px;">Pay With Stripe</button>
+                        <div style="margin-top: 20px;" id="paypal-button-container">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Page End -->
+
+
+        <!-- Payment Methods Activation -->
+        <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&disable-funding=credit"></script>
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+            paypal.Buttons({
+                funding: {
+                    allowed: [
+                        paypal.FUNDING.CARD,
+                        paypal.FUNDING.CREDIT
+                    ],
+                    disallowed: [ 
+                        paypal.FUNDING.VENMO
+                    ]
+                },
+
+                createOrder: function(data, action){
+                    return action.order.create({
+                        purchase_units: [
+                            {
+                                amount: {
+                                    value: '{{order.price}}'
+                                }
+                            }
+                        ]
+                    })
+                },
+
+                onApprove: function(data,actions){
+                    return actions.order.capture().then(function (Detail) {
+                        console.log(Detail);
+                        if (Detail.status === 'COMPLETED'){
+                            window.loactions.href = '/shop/payment-completed/{{order.oid}}/?status=$(Detail.status)'
+                        }
+                    })
+                }
+            }).render('#paypal-button-container')
+        </script>
+
+        <script>
+            var stripe = Stripe('{{stripe_publishable_key}}')
+            var checkoutButton= document.getElementById('checkout-button')
+
+            try {
+                checkoutButton.addEventListener('click', function(){
+                    var email = '{{order.email}}'
+
+                    checkoutButton.innerHTML = 'Processing...'
+
+                    fetch('/shop/api/create_checkout_session/{{order.oid}}/', {
+                        method: 'POST',
+                        body: JSON.stringify({email: email})
+                    })
+                    .then(function(response){
+                        console.log(response);
+                        console.log(stripe);
+                        return response.json()
+                    })
+                    .then(function(session){
+                        return stripe.redirectToCheckout({sessionId: session.sessionId})
+                    })
+                    .then(function(result){
+                        if(result.error){
+                            alert(result.error.message)
+                        }
+                    })
+                    .catch(function(error){
+                        console.log('Error: ', error)
+                    })
+                })
+            } catch(error) {
+                console.log(error);
+            }
+        </script>
+
+        <!-- Payment Methods Activation End-->
+{% endblock %}
+
+</html>

@@ -1,0 +1,54 @@
+{% extends "main/layout.html" %}
+
+{% block content %}
+
+    <br><br><br><br><br><br><br><br><br><br>
+    <style>
+        .table tbody tr td {
+            text-align: center;
+        }
+        .table thead tr th {
+            text-align: center;
+        }
+    </style>
+
+    <br><br><br>
+
+    <table class="table" style="margin-bottom: 300px;">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Title</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+                <tr>
+                    <td>#{{p.pid}}</td>
+                    <td>{{p.item}}</td>
+                    <td>
+                        <p>
+                            <img src="{{p.image}}" alt="product-{{p.pid}}-image" style="width: 60px; height: 60px; object-fit: cover;">
+                        </p>
+                    </td>
+                    <td>{{p.price}} $</td>
+                    <td>{{p.qty}}</td>
+                    <td>{{p.total}} $</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td class="thick-line"></td>
+                <td class="thick-line"></td>
+                <td class="thick-line"></td>
+                <td class="thick-line"></td>
+                <td class="thick-line text-center"><strong>Total</strong></td>
+                <td class="thick-line text-right">${{order.price}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock content %}

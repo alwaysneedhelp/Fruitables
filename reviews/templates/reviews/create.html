@@ -1,0 +1,25 @@
+{% extends 'main/layout.html' %}
+
+{% block title %}
+Create Your Review!
+{% endblock %}
+
+{% block content %}
+  <div class="feautures">
+    <h1>Create Your Review!</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.full_text }} <br>
+      <ul class="list-inline rating-list">
+        {% for choice in form.rating %}
+          <label for="{{ choice.id_for_label }}">
+            {{ choice.tag }}
+          </label>
+        {% endfor %}
+      </ul>
+
+      <span>{{ error }}</span> <br>
+      <button class="btn btn-success" type="submit">Create Review</button>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+
+{% block content %}
+        <style>
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+            }
+        </style>
+
+
+        <!-- Cart Page Start -->
+        <div class="container-fluid py-5" id="cart-list">
+            <div class="container py-5">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Products</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for product_id, item in cart_data.items %}
+                            <tr>
+                                <th scope="row">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{item.image}}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
+                                    </div>
+                                </th>
+                                <td>
+                                    <p class="mb-0 mt-4"><a href="{% url 'product-view' item.pid %}">{{item.title}}</a></p>
+                                </td>
+                                <td>
+                                    <p class="mb-0 mt-4">${{item.price}}</p>
+                                </td>
+                                <td>
+                                    <div class="input-group quantity mt-4" style="width: 100px;">
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border update-product" data_item="{{product_id}}">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </div>
+                                        <input type="number" class="form-control form-control-sm text-center border-0 product-qty-{{product_id}} qty-input" data_item="{{product_id}}" value="{{item.qty}}">
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border update-product" data_item="{{product_id}}">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="mb-0 mt-4">${{ item.total }}</p>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-md rounded-circle bg-light border mt-4 delete-product" data_item='{{product_id}}'>
+                                        <i class="fa fa-times text-danger "></i>
+                                    </button>
+                                </td>
+                            
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="container-fluid py-5">
+                    <div class="container py-5">
+                        <h1 class="mb-4">Billing details</h1>
+                        <form action="{% url 'save_checkout_info' %}" id="field_datas" method="POST">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ values_final.csrfmiddlewaretoken }}">
+                            <div class="row g-5">
+                                <div class="col-md-12 col-lg-6 col-xl-7">
+                                    <div class="row">
+                                        <div class="col-md-12 col-lg-6">
+                                            <div class="form-item w-100">
+                                                <label class="form-label my-3">First Name<sup>*</sup></label>
+                                                <input type="text" name="first_name" class="form-control" value="{{values_final.first_name}}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-lg-6">
+                                            <div class="form-item w-100">
+                                                <label class="form-label my-3">Last Name<sup>*</sup></label>
+                                                <input type="text" name="last_name" class="form-control" value="{{values_final.last_name}}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Address <sup>*</sup></label>
+                                        <input type="text" name="address" class="form-control" placeholder="House Number Street Name" value="{{values_final.address}}">
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Town/City<sup>*</sup></label>
+                                        <input type="text" name="city" class="form-control" value="{{values_final.city}}">
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Country<sup>*</sup></label>
+                                        <input type="text" name="country" class="form-control" value="{{values_final.country}}">
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Postcode/Zip<sup>*</sup></label>
+                                        <input type="text" name="postcode" class="form-control" value="{{values_final.postcode}}">
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Mobile<sup>*</sup></label>
+                                        <input type="tel" name="mobile" class="form-control" value="{{values_final.mobile}}">
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="form-label my-3">Email Address<sup>*</sup></label>
+                                        <input type="email" name="email" class="form-control" value="{{values_final.email}}">
+                                    </div>
+                                    <hr>
+                                    <div class="form-item">
+                                        <textarea name="notes" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Order Notes (Optional)" value="{{values_final.notes}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-lg-6 col-xl-5">
+                                    <div class="row g-4 text-center align-items-center pt-4">
+                                        <div class="row g-4 justify-content-end">
+                                            <div class="col-8"></div>
+                                            <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
+                                                <div class="bg-light rounded" style="width: 400px; margin-left: -200px; text-align: left;">
+                                                    <div class="p-4">
+                                                        <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
+                                                    </div>
+                                                    <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
+                                                        <h5 class="mb-0 ps-4 me-4">Total</h5>
+                                                        <p class="mb-0 pe-4">${{cart_total_amount}}</p>
+                                                    </div>
+                                                    {% if totalcartitems %}
+                                                        <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="submit">Proceed Checkout</button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Cart Page End -->
+{% endblock %}
+</html>
